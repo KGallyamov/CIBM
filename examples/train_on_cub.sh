@@ -1,0 +1,18 @@
+python ./src/train.py --model_arch [2048] \
+    --dataset_name=CUB \
+    --is_blackbox=False \
+    --is_stochastic=True \
+    --verbose=2 \
+    --num_runs=1 \
+    --epochs=5 \
+    --wd=0.001 \
+    --samples_mi=64 \
+    --train_backbone=True \
+    --lr=0.0003 \
+    --collect_MIs=False \
+    --merge_train_val=False \
+    --beta=0.25 \
+    --beta_lr=0.0 \
+    --optimizer=adam \
+    --batch_size=64 \
+    --use_HC=False
