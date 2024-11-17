@@ -430,10 +430,8 @@ def run_experiment(model_arch, dataset_name, is_blackbox=False, is_stochastic=Tr
     logger.info(f'Selected device: {str(device)}')
     for i in range(num_runs):
         set_seed(seed + i)
-        model, optim, scheduler = configure_training(train_backbone, is_stochastic, model_arch,
-                                                     num_concepts,
-                                                     num_classes, activation, optimizer,
-                                                     use_scheduler, lr, wd, device)
+        model, optim, scheduler = configure_training(train_backbone, is_stochastic, model_arch, num_concepts,
+                       num_classes, activation, optimizer, use_scheduler, lr, wd, device, epochs)
         train_losses, test_losses, train_MI, test_MI, \
             test_acc, concepts_acc, MI_XC, \
             MI_CY, MI_XZ, MI_ZY, MI_ZC = train_model(dataloaders, model,
