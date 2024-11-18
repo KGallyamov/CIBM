@@ -225,47 +225,8 @@ def train_model(dataloaders, model, optim, scheduler, verbose=0, MI_const=1, jen
             #     mi_loss.backward(retain_graph=True) #retain_graph=False, inputs=list(model.pred_mu.parameters()) + list(model.pred_sigma.parameters()))
             # else:
             #     mi_loss.backward(retain_graph=True)
-
+            loss += mi_loss
             loss.backward()
-            # Store the gradients from the main loss
-            main_gradients = [p.grad.clone() for p in model.parameters()]
-            # Zero gradients
-            optim.zero_grad()
-
-            mi_loss.backward(retain_graph=True)
-            # Apply gradient clipping to mi_loss gradients
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 0.1)
-
-            # Store the clipped gradients from mi_loss
-            clipped_mi_gradients = [p.grad.clone() for p in model.parameters()]
-
-            # Zero gradients again
-            optim.zero_grad()
-
-            # Add the main gradients and clipped mi gradients
-            for param, main_grad, clipped_mi_grad in zip(model.parameters(), main_gradients,
-                                                         clipped_mi_gradients):
-                param.grad = main_grad + clipped_mi_grad
-
-            optim.step()
-            ce_all_grads = []
-            for grad in main_gradients:
-                if grad is not None:
-                    _grad = param.grad.cpu().numpy()
-                    ce_all_grads.append(_grad.flatten())
-            ce_all_grads = np.concatenate(ce_all_grads)
-
-            reg_all_grads = []
-            for grad in clipped_mi_gradients:
-                if grad is not None:
-                    _grad = param.grad.cpu().numpy()
-                    reg_all_grads.append(_grad.flatten())
-            reg_all_grads = np.concatenate(reg_all_grads)
-
-            max_CE_gradient.append(np.max(np.abs(ce_all_grads)))
-            mean_CE_gradient.append(np.mean(np.abs(ce_all_grads)))
-            max_reg_gradient.append(np.max(np.abs(reg_all_grads)))
-            mean_reg_gradient.append(np.mean(np.abs(reg_all_grads)))
 
             optim.step()
             optim.zero_grad()
