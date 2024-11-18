@@ -225,7 +225,8 @@ def train_model(dataloaders, model, optim, scheduler, verbose=0, MI_const=1, jen
             #     mi_loss.backward(retain_graph=True) #retain_graph=False, inputs=list(model.pred_mu.parameters()) + list(model.pred_sigma.parameters()))
             # else:
             #     mi_loss.backward(retain_graph=True)
-            loss += mi_loss
+            if constraint_item != 0:
+                loss += mi_loss
             loss.backward()
 
             optim.step()
