@@ -456,8 +456,8 @@ def run_experiment(model_arch, dataset_name, is_blackbox=False, is_stochastic=Tr
         logger.info(f"Interventions AUC = {np.mean([m for i, m, s in acc_tti])}")
         logger.info(f"Normalized Interventions AUC = {normalized_auc}")
 
-    if measure_intervention:
-        run_and_plot_interventions(model, dataloaders, device, logdir, test_acc)
+    if measure_intervention and is_stochastic:
+        run_and_plot_interventions_uncertaity(model, dataloaders, device, logdir, test_acc)
 
     if measure_robustness:
         with open(os.path.join('logs', logdir, 'robustness.csv'), 'w') as f:
@@ -525,7 +525,7 @@ def configure_training(train_backbone, is_stochastic, model_arch, num_concepts,
     return model, optim, scheduler
 
 
-def run_and_plot_interventions(model, dataloaders, device, logdir, test_acc):
+def run_and_plot_interventions_uncertaity(model, dataloaders, device, logdir, test_acc):
     num_tti_groups_to_acc = measure_interventions(model, dataloaders['test'], device,
                                                   is_random=False, num_trials=1)
 
