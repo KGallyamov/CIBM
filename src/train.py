@@ -221,11 +221,9 @@ def train_model(dataloaders, model, optim, scheduler, verbose=0, MI_const=1, jen
             beta += beta_lr * constraint_item
 
             MI_constraint_loss += constraint_item
-            # if use_HC:
-            #     mi_loss.backward(retain_graph=True) #retain_graph=False, inputs=list(model.pred_mu.parameters()) + list(model.pred_sigma.parameters()))
-            # else:
-            #     mi_loss.backward(retain_graph=True)
-            if constraint_item != 0:
+            if use_HC:
+                mi_loss.backward(retain_graph=True, inputs=list(model.pred_mu.parameters()) + list(model.pred_sigma.parameters()))
+            else:
                 loss += mi_loss
             loss.backward()
 
