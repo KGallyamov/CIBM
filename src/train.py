@@ -223,7 +223,7 @@ def train_model(dataloaders, model, optim, scheduler, verbose=0, MI_const=1, jen
             MI_constraint_loss += constraint_item
             if use_HC:
                 mi_loss.backward(retain_graph=True, inputs=list(model.pred_mu.parameters()) + list(model.pred_sigma.parameters()))
-            else:
+            elif max_prob is not None:
                 loss += mi_loss
             loss.backward()
 
@@ -409,8 +409,8 @@ def run_experiment(model_arch, dataset_name, is_blackbox=False, is_stochastic=Tr
 
         test_accuracies.append(test_acc)
         concepts_accs[i] = concepts_acc
-        test_label_losses[i] = train_losses[:, 0]
-        test_concept_losses[i] = train_losses[:, 1]
+        test_label_losses[i] = test_losses[:, 0]
+        test_concept_losses[i] = test_losses[:, 1]
 
         if measure_robustness:
             logger.info("Running robustness tests (noise injection)")
@@ -555,6 +555,10 @@ def plot_losses(logdir, test_label_losses, test_concept_losses):
             test_label_losses.max(1).reshape(-1, 1) - test_label_losses.min(1).reshape(-1, 1))
     labels_losses_std = labels_losses.std(0)
     labels_losses = labels_losses.mean(0)
+    with open(f"logs/{logdir}/label_losses.txt", "w") as f:
+        print("t,loss,loss_std", file=f)
+        for i, (val, std) in enumerate(zip(labels_losses, labels_losses_std)):
+            print(f"{i},{val},{std}", file=f)
     ax.plot(labels_losses, label='Validation labels loss')
     plt.fill_between(range(len(labels_losses)), labels_losses - labels_losses_std,
                      labels_losses + labels_losses_std, alpha=0.5)
@@ -563,6 +567,10 @@ def plot_losses(logdir, test_label_losses, test_concept_losses):
             test_concept_losses.max(1).reshape(-1, 1) - test_concept_losses.min(1).reshape(-1, 1))
     concepts_loss_std = concepts_loss.std(0)
     concepts_loss = concepts_loss.mean(0)
+    with open(f"logs/{logdir}/concept_losses.txt", "w") as f:
+        print("t,loss,loss_std", file=f)
+        for i, (val, std) in enumerate(zip(concepts_loss, concepts_loss_std)):
+            print(f"{i},{val},{std}", file=f)
     plt.fill_between(range(len(concepts_loss)), concepts_loss - concepts_loss_std,
                      concepts_loss + concepts_loss_std, alpha=0.5)
     ax.plot(concepts_loss, label='Validation concepts loss')
